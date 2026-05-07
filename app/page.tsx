@@ -51,7 +51,7 @@ export default async function HomePage() {
                 ].map(([item, value, width]) => (
                   <div key={item} className="mb-3 rounded-md border border-border bg-background p-4">
                     <div className="mb-2 flex justify-between text-sm font-semibold"><span>{item}</span><span>{value}</span></div>
-                    <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${width}%` }} /></div>
+                    <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${Number(value) > 0 ? width : 0}%` }} /></div>
                   </div>
                 ))}
               </>

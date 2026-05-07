@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const groups = [
   { title: "Направления", links: ["JavaScript", "React", "TypeScript", "SQL"] },
@@ -12,7 +13,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-4 lg:px-8">
         <div>
           <div className="mb-3 flex items-center gap-2 font-display text-lg font-bold">
-            <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground">IP</span>
+            <Image src="/icon_ip.png" alt="Interview Prep" width={36} height={36} className="h-9 w-9 rounded-md object-cover" />
             Interview Prep
           </div>
           <p className="text-sm leading-6 text-muted-foreground">Платформа для системной подготовки к техническим собеседованиям.</p>

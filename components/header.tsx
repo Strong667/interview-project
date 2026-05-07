@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LogoutButton } from "@/components/logout-button";
 import { getCurrentUser } from "@/lib/auth";
@@ -17,7 +18,7 @@ export async function Header() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/88 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 font-display text-lg font-bold">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground">IP</span>
+          <Image src="/icon_ip.png" alt="Interview Prep" width={36} height={36} className="h-9 w-9 rounded-md object-cover" priority />
           Interview Prep
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
