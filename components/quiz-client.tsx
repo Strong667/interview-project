@@ -11,6 +11,8 @@ export function QuizClient({ topic, direction, questions, isAuthenticated }: { t
   const [showAnswer, setShowAnswer] = useState(false);
   const [score, setScore] = useState(0);
   const [answered, setAnswered] = useState(false);
+  const [missedTopics, setMissedTopics] = useState<string[]>([]);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const current = questions[index % questions.length];
   const done = index >= Math.min(questions.length, 6);
   const options = useMemo(() => {
@@ -22,18 +24,20 @@ export function QuizClient({ topic, direction, questions, isAuthenticated }: { t
   useEffect(() => {
     if (!done || !isAuthenticated || savedResultRef.current) return;
     savedResultRef.current = true;
+    setSaveStatus("saving");
     const total = Math.min(questions.length, 6);
-    const weakTopics = questions.filter((_, itemIndex) => itemIndex >= score).slice(0, 3).map((item) => item.subtopic);
+    const weakTopics = [...new Set(missedTopics)].slice(0, 3);
 
     fetch("/api/quiz-results", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic, score, total, weakTopics })
-    });
-  }, [done, isAuthenticated, questions, score, topic]);
+    }).then((response) => setSaveStatus(response.ok ? "saved" : "error")).catch(() => setSaveStatus("error"));
+  }, [done, isAuthenticated, missedTopics, questions, score, topic]);
 
-  function next(known: boolean) {
+  function next(known: boolean, countScore = true) {
     if (known) setScore((value) => value + 1);
+    if (!known && countScore) setMissedTopics((topics) => [...topics, current.subtopic]);
     setShowAnswer(false);
     setAnswered(false);
     setIndex((value) => value + 1);
@@ -41,15 +45,20 @@ export function QuizClient({ topic, direction, questions, isAuthenticated }: { t
 
   if (done) {
     const total = Math.min(questions.length, 6);
-    const weak = questions.filter((_, itemIndex) => itemIndex >= score).slice(0, 3).map((item) => item.subtopic);
+    const weak = [...new Set(missedTopics)].slice(0, 3);
     return (
       <div className="mx-auto max-w-4xl px-4 pb-16 pt-24 sm:px-6 lg:px-8">
         <section className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
           <Badge>Итог</Badge>
           <h1 className="mt-4 font-display text-4xl font-bold">Результат {score} из {total}</h1>
           <p className="mt-3 text-muted-foreground">Слабые темы: {weak.join(", ") || "повторение базовых вопросов"}.</p>
+          {isAuthenticated ? (
+            <p className="mt-3 rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+              {saveStatus === "saving" ? "Сохраняем результат..." : saveStatus === "saved" ? "Результат сохранен в профиле." : saveStatus === "error" ? "Не удалось сохранить результат." : ""}
+            </p>
+          ) : null}
           <div className="mt-6 flex justify-center gap-3">
-            <button onClick={() => { savedResultRef.current = false; setIndex(0); setScore(0); }} className="rounded-md bg-primary px-5 py-2 font-semibold text-primary-foreground">Повторить</button>
+            <button onClick={() => { savedResultRef.current = false; setIndex(0); setScore(0); setMissedTopics([]); setSaveStatus("idle"); }} className="rounded-md bg-primary px-5 py-2 font-semibold text-primary-foreground">Повторить</button>
             <Link href={`/questions/${topic}`} className="rounded-md border border-border px-5 py-2 font-semibold">К вопросам</Link>
           </div>
         </section>
@@ -95,7 +104,11 @@ export function QuizClient({ topic, direction, questions, isAuthenticated }: { t
                 disabled={answered}
                 onClick={() => {
                   setAnswered(true);
-                  if (option === current.subtopic) setScore((value) => value + 1);
+                  if (option === current.subtopic) {
+                    setScore((value) => value + 1);
+                  } else {
+                    setMissedTopics((topics) => [...topics, current.subtopic]);
+                  }
                 }}
                 className={`rounded-lg border border-border p-4 text-left font-semibold ${answered && option === current.subtopic ? "border-emerald-500 bg-emerald-500/10" : ""}`}
               >
@@ -105,7 +118,7 @@ export function QuizClient({ topic, direction, questions, isAuthenticated }: { t
             {answered ? (
               <div className="mt-3">
                 <p className="mb-3 text-sm text-muted-foreground">{current.answer}</p>
-                <button onClick={() => next(false)} className="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">Дальше</button>
+                <button onClick={() => next(false, false)} className="rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground">Дальше</button>
               </div>
             ) : null}
           </div>

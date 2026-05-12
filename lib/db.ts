@@ -84,7 +84,7 @@ export function getDirections(): Direction[] {
   }
 }
 
-export function getDirection(slug: string): Direction {
+export function getDirection(slug: string): Direction | null {
   const db = getDb();
   try {
     const row = db
@@ -97,20 +97,7 @@ export function getDirection(slug: string): Direction {
       )
       .get(slug) as DirectionRow | undefined;
 
-    if (row) return mapDirection(row);
-
-    const fallback = db
-      .prepare(
-        `select d.*, json_group_array(dt.title) as topics
-         from directions d
-         left join direction_topics dt on dt.direction_slug = d.slug
-         group by d.slug
-         order by d.sort_order
-         limit 1`
-      )
-      .get() as DirectionRow;
-
-    return mapDirection(fallback);
+    return row ? mapDirection(row) : null;
   } finally {
     db.close();
   }
@@ -120,11 +107,7 @@ export function getQuestionsByTopic(topic: string): InterviewQuestion[] {
   const db = getDb();
   try {
     const rows = db.prepare("select * from questions where topic = ? order by sort_order").all(topic) as QuestionRow[];
-    const selected = rows.length
-      ? rows
-      : (db.prepare("select * from questions where topic in ('javascript', 'react', 'typescript') order by topic, sort_order").all() as QuestionRow[]);
-
-    return selected.map(mapQuestion);
+    return rows.map(mapQuestion);
   } finally {
     db.close();
   }

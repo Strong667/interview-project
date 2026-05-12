@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePrepStore } from "@/lib/store";
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = usePrepStore();
+  const { theme, initializeTheme, toggleTheme } = usePrepStore();
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    initializeTheme();
+  }, [initializeTheme]);
 
   return (
     <button

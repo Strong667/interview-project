@@ -2,15 +2,20 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { buildPlan, levelOptions, type Direction, type Level, type PlanItem, type RoleTech } from "@/lib/data";
+import { buildPlan, levelOptions, type Direction, type Level, type PlanItem, type RoleTech, type Urgency } from "@/lib/data";
 import { Badge, ProgressBar } from "@/components/ui";
 
-const urgencyOptions = ["Уже скоро - покажи самое важное", "Через 1-2 недели", "Через месяц и более"];
+const urgencyLabels: Record<Urgency, string> = {
+  urgent: "Уже скоро - покажи самое важное",
+  normal: "Через 1-2 недели",
+  relaxed: "Через месяц и более"
+};
+const urgencyOptions = Object.entries(urgencyLabels).map(([value, label]) => ({ value: value as Urgency, label }));
 
 type PlanSelection = {
   role: string;
   level: Level;
-  urgency: string;
+  urgency: Urgency;
   technologies: string[];
 };
 
@@ -24,7 +29,7 @@ export function DirectionsWizard({ directions, roleTech }: { directions: Directi
   const [role, setRole] = useState(initialRole);
   const [technologies, setTechnologies] = useState<string[]>(initialTechnologies);
   const [level, setLevel] = useState<Level>("Junior");
-  const [urgency, setUrgency] = useState(urgencyOptions[0]);
+  const [urgency, setUrgency] = useState<Urgency>("urgent");
   const [message, setMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(true);
@@ -32,7 +37,7 @@ export function DirectionsWizard({ directions, roleTech }: { directions: Directi
 
   const availableTech = technologiesByRole[role] ?? [];
   const draftPlan = useMemo(() => buildPlan(role, technologies, level, urgency, directions), [role, technologies, level, urgency, directions]);
-  const initialSelection = { role: initialRole, level: "Junior" as Level, urgency: urgencyOptions[0], technologies: initialTechnologies };
+  const initialSelection = { role: initialRole, level: "Junior" as Level, urgency: "urgent" as Urgency, technologies: initialTechnologies };
   const [plan, setPlan] = useState<PlanItem[]>(() => buildPlan(initialSelection.role, initialSelection.technologies, initialSelection.level, initialSelection.urgency, directions));
   const [planSelection, setPlanSelection] = useState<PlanSelection>(initialSelection);
 
@@ -127,7 +132,14 @@ export function DirectionsWizard({ directions, roleTech }: { directions: Directi
                 onSelect={(item) => setLevel(item.split(" ")[0] as Level)}
               />
             ) : null}
-            {step === 3 ? <OptionGrid title="Когда собеседование?" items={urgencyOptions} selected={[urgency]} onSelect={setUrgency} /> : null}
+            {step === 3 ? (
+              <OptionGrid
+                title="Когда собеседование?"
+                items={urgencyOptions.map((item) => item.label)}
+                selected={[urgencyLabels[urgency]]}
+                onSelect={(label) => setUrgency(urgencyOptions.find((item) => item.label === label)?.value ?? "normal")}
+              />
+            ) : null}
           </div>
 
           <div className="flex justify-between gap-3 border-t border-border pt-5">
@@ -145,7 +157,7 @@ export function DirectionsWizard({ directions, roleTech }: { directions: Directi
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-2xl font-bold">Персональный план</h2>
-            <p className="text-sm text-muted-foreground">{planSelection.role}, {planSelection.level}, {planSelection.urgency.toLowerCase()}</p>
+            <p className="text-sm text-muted-foreground">{planSelection.role}, {planSelection.level}, {urgencyLabels[planSelection.urgency].toLowerCase()}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {!isWizardOpen ? (

@@ -390,6 +390,27 @@ export function getUserStats(userId: number) {
   }
 }
 
+export function getUserDirectionProgress(userId: number) {
+  const db = getDb();
+  try {
+    const rows = db
+      .prepare(
+        `select d.slug,
+                count(q.id) as total,
+                coalesce(sum(case when qp.status = 'known' then 1 else 0 end), 0) as known
+         from directions d
+         left join questions q on q.topic = d.slug
+         left join question_progress qp on qp.question_id = q.id and qp.user_id = ?
+         group by d.slug`
+      )
+      .all(userId) as { slug: string; total: number; known: number }[];
+
+    return Object.fromEntries(rows.map((row) => [row.slug, row.total > 0 ? Math.round((row.known / row.total) * 100) : 0]));
+  } finally {
+    db.close();
+  }
+}
+
 export function getSavedQuestions(userId: number) {
   const db = getDb();
   try {

@@ -2,13 +2,14 @@ import Link from "next/link";
 import { Badge, ProgressBar } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth";
 import { getDirections } from "@/lib/db";
-import { getRecentActivity, getUserStats } from "@/lib/user-db";
+import { getRecentActivity, getUserDirectionProgress, getUserStats } from "@/lib/user-db";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const directions = getDirections();
   const stats = user ? getUserStats(user.id) : null;
   const activity = user ? getRecentActivity(user.id).map((item) => item.title) : [];
+  const directionProgress = user ? getUserDirectionProgress(user.id) : {};
 
   if (!user || !stats) {
     return (
@@ -47,8 +48,8 @@ export default async function DashboardPage() {
         <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-5 font-display text-2xl font-bold">Прогресс по темам</h2>
           <div className="grid gap-5">
-            {directions.slice(0, 7).map((direction, index) => (
-              <ProgressBar key={direction.slug} value={86 - index * 9} label={direction.title} />
+            {directions.slice(0, 7).map((direction) => (
+              <ProgressBar key={direction.slug} value={directionProgress[direction.slug] ?? 0} label={direction.title} />
             ))}
           </div>
         </div>

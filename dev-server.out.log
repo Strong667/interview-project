@@ -1,0 +1,47 @@
+
+> it-interview-prep-platform@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.6:3000
+   - Experiments (use with caution):
+     ✓ mdxRs
+
+ ✓ Starting...
+ ✓ Ready in 1492ms
+ ○ Compiling /questions/[topic] ...
+ ✓ Compiled /questions/[topic] in 628ms (667 modules)
+ GET /questions/javascript 200 in 787ms
+ GET /questions/javascript 200 in 1085ms
+ ○ Compiling / ...
+ ✓ Compiled / in 712ms (673 modules)
+ GET / 200 in 1182ms
+ GET / 200 in 181ms
+ GET /questions/javascript 200 in 155ms
+ ✓ Compiled /quiz/[topic] in 467ms (681 modules)
+ GET /quiz/javascript 200 in 1122ms
+ ✓ Compiled /directions in 309ms (691 modules)
+ GET /directions 200 in 575ms
+ GET /questions/not-real-topic 404 in 140ms
+ GET / 200 in 173ms
+ GET / 200 in 90ms
+ GET /questions/javascript 200 in 160ms
+ GET /questions/javascript 200 in 155ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 643ms (698 modules)
+ POST /api/auth/logout 200 in 824ms
+ GET / 200 in 168ms
+ GET / 200 in 69ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 661ms (706 modules)
+ GET /login 200 in 794ms
+ ✓ Compiled /api/auth/login in 276ms (708 modules)
+ POST /api/auth/login 200 in 411ms
+ ✓ Compiled /profile in 423ms (716 modules)
+ GET /profile 200 in 561ms
+ GET /profile 200 in 45ms
+ GET / 200 in 64ms
+ GET /questions/javascript 200 in 58ms
+ ✓ Compiled /api/progress in 276ms (716 modules)
+ POST /api/progress 200 in 341ms
